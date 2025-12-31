@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINET GP ARCHITECT v10.0 | ANNIVERSARY</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* --- SINET DESIGN SYSTEM --- */
+        :root {
+            --sinet-dark: #1e293b;
+            --sinet-darker: #0f172a;
+            --sinet-gold: #fbbf24;
+            --sinet-blue: #3b82f6;
+            --sinet-bg: #f8fafc;
+            --sidebar-w: 280px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--sinet-bg);
+            color: #334155;
+            overflow-x: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        #sidebar {
+            width: var(--sidebar-w);
+            height: 100vh;
+            position: fixed;
+            top: 0; left: 0;
+            background: var(--sinet-darker);
+            color: white;
+            z-index: 1050;
+            transition: transform 0.3s;
+            border-right: 5px solid var(--sinet-gold);
+            padding-top: 60px;
+            overflow-y: auto;
+        }
+
+        #sidebar .nav-link {
+            color: #94a3b8;
+            padding: 15px 20px;
+            border-left: 5px solid transparent;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #sidebar .nav-link:hover, #sidebar .nav-link.active {
+            background: rgba(255,255,255,0.05);
+            color: var(--sinet-gold);
+            border-left-color: var(--sinet-gold);
+        }
+        
+        #sidebar .nav-icon { width: 25px; text-align: center; margin-right: 10px; }
+
+        /* --- MAIN CONTENT --- */
+        #main-content {
+            margin-left: var(--sidebar-w);
+            padding: 2rem;
+            transition: margin-left 0.3s;
+            min-height: 100vh;
+        }
+
+        /* --- MOBILE RESPONSIVE --- */
+        @media (max-width: 992px) {
+            #sidebar { transform: translateX(-100%); box-shadow: 10px 0 20px rgba(0,0,0,0.5); }
+            #sidebar.active { transform: translateX(0); }
+            #main-content { margin-left: 0; padding: 1rem; }
+            .mobile-toggle { display: block !important; position: fixed; top: 15px; left: 15px; z-index: 1060; background: var(--sinet-darker); color: var(--sinet-gold); border: 2px solid var(--sinet-gold); padding: 8px 12px; border-radius: 4px; }
+            .sidebar-close { display: block !important; position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 1.5rem; }
+        }
+        @media (min-width: 993px) { .mobile-toggle, .sidebar-close { display: none !important; } }
+
+        /* --- UI COMPONENTS --- */
+        .card { border: none; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; background: white; }
+        .help-trigger { color: var(--sinet-blue); cursor: pointer; margin-left: 8px; font-size: 1rem; vertical-align: middle; }
+        .help-trigger:hover { color: var(--sinet-gold); transform: scale(1.2); }
+        
+        pre { background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 5px; max-height: 400px; overflow-y: auto; font-family: 'Consolas', monospace; }
+
+        /* --- PRINT FIX --- */
+        @media print {
+            #sidebar, .mobile-toggle, .no-print, .btn, .help-trigger { display: none !important; }
+            #main-content { margin: 0; padding: 0; }
+            body { background: white; -webkit-print-color-adjust: exact; }
+            .card { box-shadow: none; border: 1px solid #000; page-break-inside: avoid; }
+            .page-break { page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="mobile-toggle shadow" onclick="app.ui.toggleSidebar()"><i class="fa-solid fa-bars"></i> MENI</button>
+
+    <nav id="sidebar">
+        <button class="sidebar-close" onclick="app.ui.toggleSidebar()"><i class="fa-solid fa-times"></i></button>
+        <div class="text-center mb-4 px-3">
+            <h4 class="text-white fw-bold ls-2 text-uppercase">SINET <span class="text-warning">ARCHITECT</span></h4>
+            <small class="text-muted" style="font-size: 0.7em;">v10.0 ANNIVERSARY</small>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link active" onclick="app.nav('dashboard')"><i class="nav-icon fa-solid fa-gauge"></i> KOMANDNA TABLA</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="app.nav('gems')"><i class="nav-icon fa-regular fa-lightbulb"></i> GEMS BAZA</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="app.nav('prompts')"><i class="nav-icon fa-solid fa-terminal"></i> PROMPTS BAZA</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="app.nav('converter')"><i class="nav-icon fa-solid fa-rotate"></i> CONVERTER LAB</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="app.nav('genlab')"><i class="nav-icon fa-solid fa-flask"></i> GENERATOR LAB</a></li>
+            <hr class="border-secondary mx-3">
+            <li class="nav-item"><a class="nav-link" onclick="app.nav('audit')"><i class="nav-icon fa-solid fa-list-ol"></i> AUDIT LOG</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="app.nav('backup')"><i class="nav-icon fa-solid fa-database"></i> BACKUP / RESTORE</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="app.nav('settings')"><i class="nav-icon fa-solid fa-sliders"></i> SETTINGS</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="app.nav('help')"><i class="nav-icon fa-solid fa-circle-question"></i> HELP MANUAL</a></li>
+        </ul>
+    </nav>
+
+    <div id="main-content">
+        <div id="app-view"></div>
+    </div>
+
+    <div class="modal fade" id="helpModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold text-primary"><i class="fa-solid fa-book-open"></i> INŽENJERSKA SPECIFIKACIJA</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body font-monospace" id="helpModalBody" style="font-size: 0.95rem; line-height: 1.6;"></div>
+                <div class="modal-footer bg-light">
+                    <small class="text-muted me-auto">SINET Help System v10.0</small>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Zatvori</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="qrModal" tabindex="-1">
+        <div class="modal-dialog modal-sm text-center">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">QR Kod</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body d-flex justify-content-center align-items-center bg-white" style="min-height: 250px;">
+                    <div id="qrcode-container"></div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <small class="text-muted">Skeniraj mobilnim telefonom</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * SINET GEMS ARCHITECT v10.0 ANNIVERSARY
+         * New Features: GitHub Profile, User Role (SysAdmin), License Signature.
+         */
+        
+        const SINET = {
+            Config: { Prefix: "SINET_v10_ANV_" },
+            
+            DB: {
+                get: (t) => JSON.parse(localStorage.getItem(SINET.Config.Prefix + t) || "[]"),
+                save: (t, d) => localStorage.setItem(SINET.Config.Prefix + t, JSON.stringify(d)),
+                nuke: () => { localStorage.clear(); location.reload(); }
+            },
+
+            Utils: {
+                id: () => 'ID_' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase(),
+                time: () => new Date().toLocaleString('sr-RS').replace(/,/g,''),
+                
+                // Unikatno ime fajla
+                setDocTitle: (type, title) => {
+                    const cleanDate = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+                    document.title = `SINET_${type}_${title.replace(/\s+/g,'_')}_${cleanDate}`;
+                },
+                
+                // Footer sa svim podacima + GITHUB + LICENCA
+                footer: () => {
+                    const s = SINET.DB.get('SETTINGS');
+                    if(!s.name) return "\n\n---\n*Generisano SINET Aplikacijom*";
+                    
+                    let f = `\n\n---\n**GENERATED BY SINET ARCHITECT**\n`;
+                    // Ime i Titula
+                    f += `👤 ${s.name} ${s.surname||''} | 🛡️ ${s.role || 'SysAdmin'}\n`;
+                    
+                    if(s.email) f+= `📧 Email: ${s.email}\n`;
+                    if(s.phone) f+= `📞 Tel: ${s.phone}\n`;
+                    
+                    // GitHub na posebnom mestu
+                    if(s.github) f+= `🐙 GitHub: ${s.github}\n`;
+                    
+                    if(s.viber) f+= `📱 Viber: ${s.viber}\n`;
+                    if(s.whatsapp) f+= `💬 WA: ${s.whatsapp}\n`;
+                    if(s.fb) f+= `f FB: ${s.fb}\n`;
+                    if(s.x) f+= `𝕏 X: ${s.x}\n`;
+
+                    // Gemini Potpis
+                    f += `\n🤖 Powered by: Gemini AI & SINET Standard\n`;
+                    
+                    return f;
+                },
+
+                exportMD: (filename, content) => {
+                    const full = content + SINET.Utils.footer();
+                    const blob = new Blob([full], { type: 'text/markdown' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${filename.replace(/\s+/g,'_')}.md`;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+                },
+
+                readFile: (input, cb) => {
+                    if(input.files[0]) {
+                        const r = new FileReader();
+                        r.onload = (e) => cb(e.target.result);
+                        r.readAsText(input.files[0]);
+                    }
+                }
+            },
+
+            // Help Baza
+            HelpDB: {
+                "task": { title: "TASK (Zadatak)", content: "<b>ŠTA UPISATI:</b> Izvršni glagol (npr. Analiziraj, Napiši, Kreiraj, Prevedi).<br><b>ZAŠTO:</b> AI mora znati šta je CILJ.<br><b>PRIMER:</b> 'Analiziraj ovaj ugovor i pronađi greške.'" },
+                "context": { title: "CONTEXT (Kontekst)", content: "<b>ŠTA UPISATI:</b> Ko je AI (Uloga) i ko je Publika.<br><b>ZAŠTO:</b> Određuje stručnost i rečnik.<br><b>PRIMER:</b> 'Ti si Senior Java Developer. Pišeš za početnike.'" },
+                "format": { title: "FORMAT (Izlaz)", content: "<b>ŠTA UPISATI:</b> Željeni oblik rezultata.<br><b>ZAŠTO:</b> Da ne dobijete samo tekst.<br><b>PRIMER:</b> 'Tabela, Markdown Kod, JSON, Bullet lista.'" },
+                "tone": { title: "TONE (Ton)", content: "<b>ŠTA UPISATI:</b> Emocionalni stil.<br><b>ZAŠTO:</b> Prilagođavanje situaciji.<br><b>PRIMER:</b> 'Profesionalan, Šaljiv, Strog, Akademski.'" },
+                "example": { title: "EXAMPLE (Primer)", content: "<b>ŠTA UPISATI:</b> Uzorak teksta koji želite da AI imitira.<br><b>ZAŠTO:</b> Najbolji način za preciznost (One-Shot Learning)." },
+                "settings_social": { title: "DIGITALNI IDENTITET", content: "Svi podaci (uključujući <b>GitHub</b> i <b>Titulu</b>) dodaju se u Footer svakog exportovanog fajla. To služi kao vaša profesionalna licenca." },
+                "converter_input": { title: "ULAZ (INPUT)", content: "Ovde nalepite tekst ili kod koji želite da konvertujete. Možete koristiti i opciju 'Učitaj iz Baze' iznad." },
+                "converter_output": { title: "IZLAZ (OUTPUT)", content: "Ovde se pojavljuje rezultat. Možete upisati sopstveni naziv pre čuvanja. Ako ne upišete, sistem dodeljuje datum." },
+                "backup_restore": { title: "BACKUP PROCEDURA", content: "<b>BACKUP:</b> Kreira kompletnu kopiju baze (.json). Obavezno raditi pre izlaska.<br><b>RESTORE:</b> Vraća podatke iz fajla (Briše trenutne podatke!)." }
+            },
+
+            // Generator Algoritam
+            Generator: {
+                tasks: ["Analiziraj", "Napiši", "Kreiraj", "Optimizuj", "Prevedi", "Debuguj", "Objasni"],
+                topics: ["Python Kod", "Ugovor o Radu", "SEO Strategiju", "React Komponentu", "SQL Upit", "Marketing Plan", "Keto Dijetu"],
+                roles: ["Senior Dev", "Advokat", "SEO Guru", "Arhitekta", "Copywriter", "Trener", "Data Scientist"],
+                
+                run: (table, count) => {
+                    let items = SINET.DB.get(table);
+                    const G = SINET.Generator;
+                    
+                    for(let i=0; i<count; i++) {
+                        const t = G.tasks[Math.floor(Math.random()*G.tasks.length)];
+                        const top = G.topics[Math.floor(Math.random()*G.topics.length)];
+                        const r = G.roles[Math.floor(Math.random()*G.roles.length)];
+                        
+                        let content = "";
+                        if(table === 'GEMS') {
+                            content = `**Task:** ${t}\n**Context:** Ti si ${r}\n**Format:** Tabela ili Lista\n**Tone:** Profesionalan\n**Tema:** ${top}\n\n*Automatski generisan podatak #${i+1}*`;
+                        } else {
+                            content = `Act as a ${r}. ${t} the following topic: ${top}. Please provide output in JSON format.`;
+                        }
+                        
+                        items.push({
+                            id: SINET.Utils.id(),
+                            title: `${t} ${top} #${i+1}`,
+                            content: content,
+                            date: SINET.Utils.time()
+                        });
+                    }
+                    SINET.DB.save(table, items);
+                    SINET.Audit.log('GEN_LAB', `Generisano ${count} stavki u ${table}`);
+                    alert(`Uspešno generisano ${count} realističnih podataka u ${table} bazi!`);
+                    app.nav(table.toLowerCase());
+                }
+            },
+
+            Audit: {
+                log: (act, det) => {
+                    let l = SINET.DB.get('AUDIT');
+                    l.unshift({id: SINET.Utils.id(), time: SINET.Utils.time(), act, det});
+                    SINET.DB.save('AUDIT', l.slice(0,1000));
+                }
+            }
+        };
+
+        const app = {
+            currentView: 'dashboard',
+
+            ui: {
+                toggleSidebar: () => document.getElementById('sidebar').classList.toggle('active'),
+                
+                // Help Ikona
+                help: (k) => `<i class="fa-solid fa-circle-question help-trigger" onclick="app.handlers.showHelp('${k}')"></i>`,
+                
+                qr: (txt) => {
+                    const el = document.getElementById('qrcode-container');
+                    el.innerHTML = "";
+                    const modal = new bootstrap.Modal(document.getElementById('qrModal'));
+                    modal.show();
+                    setTimeout(() => {
+                        try { new QRCode(el, { text: txt.substring(0,800), width:200, height:200 }); } 
+                        catch(e) { el.innerHTML = "Greška: Biblioteka nije učitana."; }
+                    }, 300);
+                }
+            },
+
+            nav: (v) => {
+                app.currentView = v;
+                if(window.innerWidth < 992) document.getElementById('sidebar').classList.remove('active');
+                document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                document.getElementById('app-view').innerHTML = app.render(v);
+            },
+
+            render: (v) => {
+                switch(v) {
+                    case 'dashboard': return app.views.dash();
+                    case 'gems': return app.views.list('GEMS');
+                    case 'prompts': return app.views.list('PROMPTS');
+                    case 'converter': return app.views.conv();
+                    case 'genlab': return app.views.gen();
+                    case 'audit': return app.views.audit();
+                    case 'backup': return app.views.backup();
+                    case 'settings': return app.views.set();
+                    case 'help': return app.views.help();
+                    default: return '404';
+                }
+            },
+
+            views: {
+                dash: () => `
+                    <h2 class="mb-4 text-dark border-bottom pb-3">KOMANDNA TABLA</h2>
+                    <div class="row g-4">
+                        <div class="col-md-4"><div class="card p-4 border-start border-5 border-primary h-100">
+                            <h1 class="display-4 fw-bold text-primary">${SINET.DB.get('GEMS').length}</h1>
+                            <h5 class="text-muted">GEMS BAZA</h5>
+                        </div></div>
+                        <div class="col-md-4"><div class="card p-4 border-start border-5 border-success h-100">
+                            <h1 class="display-4 fw-bold text-success">${SINET.DB.get('PROMPTS').length}</h1>
+                            <h5 class="text-muted">PROMPTS BAZA</h5>
+                        </div></div>
+                        <div class="col-md-4"><div class="card p-4 border-start border-5 border-warning h-100">
+                            <h1 class="display-4 fw-bold text-warning">${SINET.DB.get('AUDIT').length}</h1>
+                            <h5 class="text-muted">AUDIT LOG</h5>
+                        </div></div>
+                    </div>`,
+                
+                list: (t) => {
+                    const d = [...SINET.DB.get(t)].reverse();
+                    let rows = d.map(i => {
+                        const esc = i.content.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        return `<tr>
+                            <td><small class="font-monospace bg-light border px-1">${i.id}</small></td>
+                            <td><b>${i.title}</b></td>
+                            <td class="d-none d-md-table-cell text-muted">${i.date}</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-dark" onclick="app.ui.qr('${esc}')" title="QR"><i class="fa-solid fa-qrcode"></i></button>
+                                <button class="btn btn-sm btn-primary" onclick="app.handlers.view('${t}','${i.id}')"><i class="fa-solid fa-eye"></i></button>
+                                <button class="btn btn-sm btn-warning" onclick="app.handlers.exp('${t}','${i.id}')"><i class="fa-solid fa-file-export"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="app.handlers.del('${t}','${i.id}')"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>`;
+                    }).join('');
+                    if(!rows) rows = `<tr><td colspan="4" class="text-center p-5 text-muted">Baza je prazna. Idite na <b>Generator Lab</b> za test podatke.</td></tr>`;
+                    
+                    return `
+                        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                            <h2 class="text-uppercase fw-bold">${t} BAZA</h2>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-dark" onclick="app.handlers.printAll('${t}')"><i class="fa-solid fa-print"></i> ŠTAMPAJ SVE</button>
+                                <button class="btn btn-success px-4" onclick="app.handlers.newForm('${t}')"><i class="fa-solid fa-plus"></i> NOVI</button>
+                            </div>
+                        </div>
+                        <div class="card table-responsive"><table class="table table-hover mb-0 align-middle"><thead class="table-light"><tr><th>ID</th><th>Naslov</th><th class="d-none d-md-table-cell">Datum</th><th class="text-end">Opcije</th></tr></thead><tbody>${rows}</tbody></table></div>
+                    `;
+                },
+
+                conv: () => {
+                    const opts = SINET.DB.get('GEMS').map(i=>`<option value="${i.content.replace(/"/g,'&quot;')}">[GEM] ${i.title}</option>`).join('') +
+                                 SINET.DB.get('PROMPTS').map(i=>`<option value="${i.content.replace(/"/g,'&quot;')}">[PRM] ${i.title}</option>`).join('');
+                    
+                    return `
+                        <h2 class="mb-4">CONVERTER LAB</h2>
+                        <div class="row g-4">
+                            <div class="col-lg-5">
+                                <div class="card h-100 p-4 border-top border-4 border-primary">
+                                    <h5 class="mb-3">1. ULAZ (INPUT) ${app.ui.help('converter_input')}</h5>
+                                    <select class="form-select mb-3" onchange="document.getElementById('c-src').value=this.value"><option value="">-- Učitaj iz Baze --</option>${opts}</select>
+                                    <div class="mb-3"><label>Ili učitaj sa diska:</label><input type="file" class="form-control" onchange="SINET.Utils.readFile(this, (t)=>document.getElementById('c-src').value=t)"></div>
+                                    <textarea id="c-src" class="form-control font-monospace bg-light" rows="12" placeholder="Nalepite tekst ovde..."></textarea>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 d-flex flex-column justify-content-center gap-3 align-items-center">
+                                <i class="fa-solid fa-arrow-right fa-2x d-none d-lg-block text-muted"></i>
+                                <button class="btn btn-primary w-100 py-3 shadow" onclick="app.handlers.runConv('P2G')">PROMPT &rarr; GEM</button>
+                                <button class="btn btn-dark w-100 py-3 shadow" onclick="app.handlers.runConv('G2P')">GEM &rarr; PROMPT</button>
+                                <i class="fa-solid fa-arrow-right fa-2x d-none d-lg-block text-muted"></i>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="card h-100 p-4 border-top border-4 border-success">
+                                    <h5 class="mb-3">2. IZLAZ (OUTPUT) ${app.ui.help('converter_output')}</h5>
+                                    <div class="mb-3">
+                                        <label class="fw-bold text-success">Naziv Fajla:</label>
+                                        <input type="text" id="c-title" class="form-control" placeholder="Unesite naziv konverzije...">
+                                    </div>
+                                    <textarea id="c-res" class="form-control font-monospace mb-3 bg-white" rows="12" readonly></textarea>
+                                    <div class="row g-2">
+                                        <div class="col-6"><button class="btn btn-success w-100" onclick="app.handlers.saveConv('GEMS')"><i class="fa-solid fa-floppy-disk"></i> U GEMS</button></div>
+                                        <div class="col-6"><button class="btn btn-secondary w-100" onclick="app.handlers.saveConv('PROMPTS')"><i class="fa-solid fa-floppy-disk"></i> U PROMPTS</button></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                },
+
+                set: () => {
+                    const s = SINET.DB.get('SETTINGS');
+                    return `
+                        <h2 class="mb-4">PODEŠAVANJA KORISNIKA ${app.ui.help('settings_social')}</h2>
+                        <div class="card p-5">
+                            <form onsubmit="app.handlers.saveSet(event)">
+                                <h5 class="text-primary border-bottom pb-2 mb-4">Osnovni Podaci</h5>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6"><label class="form-label">Ime</label><input id="s-name" class="form-control" value="${s.name||''}" required></div>
+                                    <div class="col-md-6"><label class="form-label">Prezime</label><input id="s-surname" class="form-control" value="${s.surname||''}"></div>
+                                    <div class="col-md-6"><label class="form-label text-success fw-bold"><i class="fa-solid fa-user-shield"></i> Titula / Role</label><input id="s-role" class="form-control" value="${s.role||'SysAdmin'}" placeholder="npr. SysAdmin"></div>
+                                    <div class="col-md-6"><label class="form-label">Email</label><input id="s-email" class="form-control" value="${s.email||''}"></div>
+                                    <div class="col-md-6"><label class="form-label">Telefon</label><input id="s-phone" class="form-control" value="${s.phone||''}"></div>
+                                </div>
+                                <h5 class="text-primary border-bottom pb-2 mb-4">Digitalni Identitet (Footer Potpis)</h5>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-12"><label class="form-label fw-bold"><i class="fa-brands fa-github text-dark"></i> GitHub Profil</label><input id="s-github" class="form-control" value="${s.github||''}" placeholder="https://github.com/..."></div>
+                                    <div class="col-md-6"><label class="form-label"><i class="fa-brands fa-viber text-purple"></i> Viber</label><input id="s-viber" class="form-control" value="${s.viber||''}"></div>
+                                    <div class="col-md-6"><label class="form-label"><i class="fa-brands fa-whatsapp text-success"></i> WhatsApp</label><input id="s-wa" class="form-control" value="${s.whatsapp||''}"></div>
+                                    <div class="col-md-6"><label class="form-label"><i class="fa-brands fa-facebook text-primary"></i> Facebook</label><input id="s-fb" class="form-control" value="${s.fb||''}"></div>
+                                    <div class="col-md-6"><label class="form-label"><i class="fa-brands fa-x-twitter text-dark"></i> X (Twitter)</label><input id="s-x" class="form-control" value="${s.x||''}"></div>
+                                </div>
+                                <button class="btn btn-primary btn-lg w-100 shadow"><i class="fa-solid fa-save"></i> SAČUVAJ SVE PODATKE</button>
+                            </form>
+                        </div>`;
+                },
+
+                gen: () => `
+                    <h2 class="mb-4">GENERATOR LAB (STRESS TEST)</h2>
+                    <div class="card p-5 border-warning border-2">
+                        <div class="alert alert-warning">
+                            <i class="fa-solid fa-flask"></i> <b>GENERATOR PODATAKA:</b> Klikom na dugmad generišete nasumične, ali smislene (realistične) podatke u bazu radi testiranja.
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h5 class="fw-bold">GEMS GENERATOR</h5>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-outline-dark" onclick="SINET.Generator.run('GEMS', 20)">+20</button>
+                                    <button class="btn btn-outline-dark" onclick="SINET.Generator.run('GEMS', 50)">+50</button>
+                                    <button class="btn btn-outline-dark" onclick="SINET.Generator.run('GEMS', 100)">+100</button>
+                                    <button class="btn btn-outline-dark" onclick="SINET.Generator.run('GEMS', 500)">+500</button>
+                                    <button class="btn btn-outline-dark" onclick="SINET.Generator.run('GEMS', 1000)">+1000</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6 border-start">
+                                <h5 class="fw-bold">PROMPTS GENERATOR</h5>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-outline-dark" onclick="SINET.Generator.run('PROMPTS', 20)">+20</button>
+                                    <button class="btn btn-outline-dark" onclick="SINET.Generator.run('PROMPTS', 50)">+50</button>
+                                    <button class="btn btn-outline-dark" onclick="SINET.Generator.run('PROMPTS', 100)">+100</button>
+                                    <button class="btn btn-outline-dark" onclick="SINET.Generator.run('PROMPTS', 500)">+500</button>
+                                    <button class="btn btn-outline-dark" onclick="SINET.Generator.run('PROMPTS', 1000)">+1000</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-5">
+
+                        <h4 class="text-danger mb-3"><i class="fa-solid fa-triangle-exclamation"></i> OPASNA ZONA (RESET)</h4>
+                        <div class="d-flex gap-3">
+                            <button class="btn btn-danger btn-lg" onclick="app.handlers.resetDataOnly()">
+                                <i class="fa-solid fa-trash"></i> OBRIŠI SAMO PODATKE
+                                <br><small style="font-size:0.6em">(Čuva Settings)</small>
+                            </button>
+                            <button class="btn btn-dark btn-lg" onclick="SINET.DB.nuke()">
+                                <i class="fa-solid fa-radiation"></i> HARD RESET
+                                <br><small style="font-size:0.6em">(Briše SVE - Fabrički)</small>
+                            </button>
+                        </div>
+                    </div>`,
+
+                help: () => `<h2>Help Centar</h2><div class="card p-5"><p class="lead">Kliknite na plavu ikonicu <i class="fa-solid fa-circle-question text-primary"></i> pored bilo kog polja za unos u aplikaciji da biste dobili kontekstualnu inženjersku pomoć.</p></div>`,
+                audit: () => `<h2>Audit Log</h2><div class="card"><ul class="list-group list-group-flush">${SINET.DB.get('AUDIT').map(l=>`<li class="list-group-item d-flex justify-content-between align-items-center"><div><span class="badge bg-secondary me-2">${l.act}</span> ${l.det}</div><small class="text-muted font-monospace">${l.time}</small></li>`).join('')}</ul></div>`,
+                
+                backup: () => `
+                    <h2 class="mb-4">BACKUP & RESTORE ${app.ui.help('backup_restore')}</h2>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card h-100 p-5 text-center border-primary border-3">
+                                <i class="fa-solid fa-cloud-arrow-down fa-5x text-primary mb-4"></i>
+                                <h3>KREIRAJ BACKUP</h3>
+                                <p class="text-muted">Preuzmite kompletnu bazu podataka u JSON formatu.</p>
+                                <button class="btn btn-primary btn-lg w-100 mt-auto" onclick="app.handlers.bkp()"><i class="fa-solid fa-download"></i> PREUZMI .JSON</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 p-5 text-center border-warning border-3">
+                                <i class="fa-solid fa-cloud-arrow-up fa-5x text-warning mb-4"></i>
+                                <h3>RESTORE SISTEMA</h3>
+                                <p class="text-muted">Učitajte prethodni backup fajl.</p>
+                                <input type="file" id="resFile" class="form-control mb-3">
+                                <button class="btn btn-warning btn-lg w-100 mt-auto" onclick="app.handlers.rst()"><i class="fa-solid fa-upload"></i> UČITAJ BACKUP</button>
+                            </div>
+                        </div>
+                    </div>`
+            },
+
+            handlers: {
+                showHelp: (k) => {
+                    const h = SINET.HelpDB[k] || {title:"Info", content:"Nema opisa."};
+                    document.querySelector('#helpModal .modal-title').innerHTML = `<i class="fa-solid fa-info-circle"></i> ${h.title}`;
+                    document.getElementById('helpModalBody').innerHTML = h.content;
+                    new bootstrap.Modal(document.getElementById('helpModal')).show();
+                },
+
+                newForm: (t) => {
+                    let h = `<div class="d-flex justify-content-between align-items-center mb-3"><h3>Novi ${t}</h3><button class="btn btn-outline-secondary" onclick="app.nav('${t.toLowerCase()}')">Nazad</button></div><div class="card p-4">`;
+                    if(t==='GEMS') {
+                        h+= `<label class="fw-bold">Naslov</label><input id="n-ti" class="form-control mb-3">
+                             <div class="row g-3">
+                                <div class="col-md-6"><label class="fw-bold">1. TASK ${app.ui.help('task')}</label><input id="n-task" class="form-control" placeholder="Glagol..."></div>
+                                <div class="col-md-6"><label class="fw-bold">4. TONE ${app.ui.help('tone')}</label><input id="n-tone" class="form-control" placeholder="Stil..."></div>
+                                <div class="col-12"><label class="fw-bold">2. CONTEXT ${app.ui.help('context')}</label><input id="n-ctx" class="form-control" placeholder="Persona..."></div>
+                                <div class="col-12"><label class="fw-bold">3. FORMAT ${app.ui.help('format')}</label><input id="n-fmt" class="form-control" placeholder="Izlaz..."></div>
+                                <div class="col-12"><label class="fw-bold">5. EXAMPLE ${app.ui.help('example')}</label><textarea id="n-ex" class="form-control" rows="3" placeholder="Primer..."></textarea></div>
+                             </div>`;
+                    } else {
+                        h+= `<label class="fw-bold">Naslov</label><input id="n-ti" class="form-control mb-3"><label class="fw-bold">Sadržaj</label><textarea id="n-cn" class="form-control font-monospace" rows="12"></textarea>`;
+                    }
+                    h+= `<button class="btn btn-success mt-4 w-100 btn-lg shadow" onclick="app.handlers.save('${t}')"><i class="fa-solid fa-floppy-disk"></i> SAČUVAJ</button></div>`;
+                    document.getElementById('app-view').innerHTML = h;
+                },
+
+                save: (t) => {
+                    const ti = document.getElementById('n-ti').value;
+                    if(!ti) return alert("Naslov je obavezan.");
+                    let c = "";
+                    if(t==='GEMS') {
+                        c = `**Task:** ${document.getElementById('n-task').value}\n**Context:** ${document.getElementById('n-ctx').value}\n**Format:** ${document.getElementById('n-fmt').value}\n**Tone:** ${document.getElementById('n-tone').value}\n\n**Example:**\n${document.getElementById('n-ex').value}`;
+                    } else { c = document.getElementById('n-cn').value; }
+                    
+                    let d = SINET.DB.get(t);
+                    d.push({id:SINET.Utils.id(), title:ti, content:c, date:SINET.Utils.time()});
+                    SINET.DB.save(t, d);
+                    SINET.Audit.log('NEW', `Kreiran ${t}: ${ti}`);
+                    app.nav(t.toLowerCase());
+                },
+
+                view: (t, id) => {
+                    const i = SINET.DB.get(t).find(x=>x.id===id);
+                    SINET.Utils.setDocTitle(t, i.title); 
+                    
+                    document.getElementById('app-view').innerHTML = `
+                        <button class="btn btn-secondary mb-3" onclick="app.nav('${t.toLowerCase()}')">&laquo; Nazad</button>
+                        <div class="card p-5">
+                            <div class="d-flex justify-content-between border-bottom pb-3 mb-3">
+                                <h2>${i.title}</h2>
+                                <span class="badge bg-light text-dark border align-self-center font-monospace">${i.id}</span>
+                            </div>
+                            <small class="text-muted mb-3 d-block"><i class="fa-regular fa-clock"></i> ${i.date}</small>
+                            <pre>${i.content}</pre>
+                            <div class="mt-4 text-muted small border-top pt-2" style="white-space: pre-wrap;">${SINET.Utils.footer()}</div>
+                            <div class="mt-4 no-print d-flex gap-2">
+                                <button class="btn btn-primary" onclick="window.print()"><i class="fa-solid fa-print"></i> Print / PDF</button>
+                                <button class="btn btn-dark" onclick="app.handlers.exp('${t}','${i.id}')"><i class="fa-solid fa-file-export"></i> Export MD</button>
+                            </div>
+                        </div>`;
+                },
+
+                exp: (t, id) => {
+                    const i = SINET.DB.get(t).find(x=>x.id===id);
+                    SINET.Utils.exportMD(`SINET_${t}_${i.title}`, i.content);
+                    SINET.Audit.log('EXPORT', `Export: ${i.title}`);
+                },
+                del: (t, id) => { if(confirm('Brisanje je trajno. Potvrdi?')) { SINET.DB.save(t, SINET.DB.get(t).filter(x=>x.id!==id)); app.nav(t.toLowerCase()); } },
+
+                runConv: (dir) => {
+                    const s = document.getElementById('c-src').value;
+                    document.getElementById('c-res').value = dir==='P2G' ? `**GENERATED GEM**\n\n${s}` : s.replace(/[*#]/g,'');
+                },
+                saveConv: (t) => {
+                    const c = document.getElementById('c-res').value;
+                    let title = document.getElementById('c-title').value;
+                    if(!c) return alert("Nema sadržaja.");
+                    if(!title) title = `Konverzija ${SINET.Utils.time()}`; 
+                    
+                    let d = SINET.DB.get(t);
+                    d.push({id:SINET.Utils.id(), title: title, content:c, date:SINET.Utils.time()});
+                    SINET.DB.save(t,d);
+                    alert('Sačuvano!');
+                },
+
+                saveSet: (e) => {
+                    e.preventDefault();
+                    const s = {
+                        name: document.getElementById('s-name').value, surname: document.getElementById('s-surname').value,
+                        role: document.getElementById('s-role').value, // Titula
+                        email: document.getElementById('s-email').value, phone: document.getElementById('s-phone').value,
+                        github: document.getElementById('s-github').value, // GitHub
+                        viber: document.getElementById('s-viber').value, whatsapp: document.getElementById('s-wa').value,
+                        fb: document.getElementById('s-fb').value, x: document.getElementById('s-x').value
+                    };
+                    SINET.DB.save('SETTINGS', s);
+                    alert('Podešavanja sačuvana.');
+                },
+
+                printAll: (t) => {
+                    const d = SINET.DB.get(t);
+                    if(!d.length) return alert('Prazno.');
+                    SINET.Utils.setDocTitle(t, "FULL_REPORT");
+                    let h = `<div class="p-5"><h1>${t} REPORT</h1><p>${SINET.Utils.time()}</p><hr>`;
+                    d.forEach(i => h+= `<div class="page-break mb-5 border p-4"><h3>${i.title}</h3><small>${i.id}</small><pre style="background:#f9f9f9; padding:15px; margin-top:10px;">${i.content}</pre><div class="small text-muted mt-2">${SINET.Utils.footer()}</div></div>`);
+                    h+= `</div><div class="fixed-top text-center no-print bg-white p-3 shadow"><button class="btn btn-primary btn-lg" onclick="window.print()">PRINT</button><button class="btn btn-secondary btn-lg" onclick="location.reload()">IZLAZ</button></div>`;
+                    document.body.innerHTML = h;
+                },
+
+                bkp: () => {
+                    const blob = new Blob([JSON.stringify({G:SINET.DB.get('GEMS'), P:SINET.DB.get('PROMPTS'), S:SINET.DB.get('SETTINGS'), A:SINET.DB.get('AUDIT')})], {type:'application/json'});
+                    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`SINET_BACKUP_${new Date().toISOString().slice(0,16).replace(/[:T]/g,'-')}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                },
+                rst: () => {
+                    const f=document.getElementById('resFile').files[0];
+                    if(f) SINET.Utils.readFile({files:[f]}, (t)=>{ const d=JSON.parse(t); SINET.DB.save('GEMS',d.G); SINET.DB.save('PROMPTS',d.P); SINET.DB.save('SETTINGS',d.S); SINET.DB.save('AUDIT',d.A||[]); alert("Uspešno vraćeno!"); location.reload(); });
+                },
+
+                resetDataOnly: () => {
+                    if(confirm("Brišem GEMS, PROMPTS i AUDIT. Settings podaci OSTAJU. Potvrdi?")) {
+                        SINET.DB.save('GEMS', []); SINET.DB.save('PROMPTS', []); SINET.DB.save('AUDIT', []);
+                        alert("Podaci očišćeni. Settings sačuvan.");
+                        location.reload();
+                    }
+                }
+            }
+        };
+
+        window.onload = () => { if(!SINET.DB.get('SETTINGS').name) SINET.DB.save('SETTINGS',{name:''}); app.nav('dashboard'); }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
